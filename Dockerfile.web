@@ -1,0 +1,16 @@
+FROM golang:latest
+SHELL ["/bin/bash", "-c"]
+# Expose port 8080
+EXPOSE 8080
+# Create a new user for the application
+RUN useradd -m app
+# Copy the contents of the application
+# to the new user's home directory
+COPY /app/* /home/app/
+RUN chown -R app:app /home/app
+USER app
+WORKDIR /home/app
+# Build the application
+RUN go build main.go
+# Run the application when the container starts
+CMD /home/app/main

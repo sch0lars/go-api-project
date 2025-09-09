@@ -1,0 +1,7 @@
+{
+    "user": "docker",
+    "password": "docker",
+    "host": "database",
+    "port": 5432,
+    "db": "music"
+}

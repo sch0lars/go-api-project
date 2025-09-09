@@ -1,0 +1,18 @@
+services:
+  web:
+    image: golang-web-service
+    ports:
+      - '8080:8080'
+    depends_on:
+      - database
+    networks:
+      - go-api-network
+  database:
+    image: postgres-db
+    ports:
+      - '5432:5432'
+    networks:
+      - go-api-network
+networks:
+  go-api-network:
+    driver: bridge

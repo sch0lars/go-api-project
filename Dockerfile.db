@@ -1,0 +1,14 @@
+# Pull the latest Postgres image
+FROM postgres:latest
+# Expose port 5432
+EXPOSE 5432
+# Set the environmental variables for the image
+ENV POSTGRES_USER=docker
+ENV POSTGRES_PASSWORD=docker
+ENV POSTGRES_DB=music
+# Copy the CSV file with the sample data
+COPY ./sql/data.csv /tmp/
+# Place the init.sql file in the Docker entrypoint
+# so it is executed upon creation of the image
+COPY ./sql/init.sql /docker-entrypoint-initdb.d/
+COPY ./sql/insert_data.sql /docker-entrypoint-initdb.d/
