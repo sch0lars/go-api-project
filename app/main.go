@@ -12,8 +12,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// This is the config file with the database connection information
 const CONFIG_FILE = "config.json"
 
+// A struct representing an album. Each field represents a field in the
+// `albums` table in the `music` database.
 type Album struct {
 	ID     int    `json:"id"`
 	Title  string `json:"title"`
@@ -22,6 +25,8 @@ type Album struct {
 	Year   string `json:"year"`
 }
 
+// A struct representing a database configuration. It is used to generate the
+// connection string for connecting to the Postgres database.
 type Config struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
@@ -30,6 +35,7 @@ type Config struct {
 	Database string `json:"db"`
 }
 
+// Declare the global variables
 var album *Album
 var db *sql.DB
 var err error
@@ -54,6 +60,9 @@ func main() {
 
 }
 
+// Parses the confguration information from a JSON file and
+// unmarshals it into a `Config` struct, which is then returned
+// by the function.
 func getConfigInfo(configFilename string) Config {
 	// Read the contents of the config file
 	var data []byte
@@ -70,6 +79,8 @@ func getConfigInfo(configFilename string) Config {
 	return config
 }
 
+// Generates a connection string for the Postgres database
+// from the fields in the provided `Config` object.
 func generateConnectionString(config *Config) string {
 	connectionString := fmt.Sprintf(
 		"postgresql://%s:%s@%s:%d/%s?sslmode=disable",
@@ -83,7 +94,11 @@ func generateConnectionString(config *Config) string {
 	return connectionString
 }
 
-func (album *Album) getAlbumInfo(id int) {
+// Sets the album information for an `Album` struct based on the data
+// retrieved from the `music` database.
+// If no album information can be found, it sets the album ID to 0 and
+// the remaining fields to "N/A".
+func (album *Album) setAlbumInfo(id int) {
 	// Query the data
 	query := fmt.Sprintf("SELECT * FROM albums WHERE id = %d", id)
 	rows, err := db.Query(query)
@@ -118,6 +133,7 @@ func (album *Album) getAlbumInfo(id int) {
 	return
 }
 
+// Converts the fields of an `Album` struct to JSON and returns the data as a `[]byte` slice.
 func (album *Album) getJsonData() []byte {
 	// Marshal the `Album` struct into a JSON object
 	jsonData, err := json.Marshal(album)
@@ -129,6 +145,10 @@ func (album *Album) getJsonData() []byte {
 	return jsonData
 }
 
+// This function serves as a handler for the /album/{id} URL
+// It attempts to convert the `id` value supplied in the URL path,
+// convert it to an integer, and retrieve the information from the
+// database for the album with the same `id` value.
 func (album *Album) albumHandler(w http.ResponseWriter, r *http.Request) {
 	var id int
 	// Parse the album ID from the URL path
@@ -143,7 +163,7 @@ func (album *Album) albumHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Parse the album information from the album
-	album.getAlbumInfo(id)
+	album.setAlbumInfo(id)
 	// Generate the JSON data and convert it into a string
 	jsonData := album.getJsonData()
 	jsonDataString := string(jsonData)

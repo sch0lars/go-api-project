@@ -9,6 +9,29 @@ This is a simple project I created using Golang, which creates a basic API that 
 * PostgreSQL (will be installed on a Docker container)
 * [psql](https://www.postgresql.org/docs/current/app-psql.html)
 
+## Project Structure
+
+This project has two Docker images, a Golang image and a Postgres image.
+
+* The Golang image will build and host the Go application, which is defined in the `./app` directory.
+* The Postgres image will be used to build and host the `music` database, which will contain the `albums` table in which the album information will be stored.
+
+```mermaid
+architecture-beta
+    group docker(server)[Docker]
+    group golang(disk)[Golang Image] in docker
+    group postgres(disk)[Postgres Image] in docker
+
+    service web-app(internet)[Web App] in golang
+    service database(database)[Database] in postgres
+    service localhost(server)[Localhost]
+	
+    database:L <--> R:web-app
+    localhost:T <--> B:web-app
+```
+
+The Golang and Postgres containers, which will be created from the aforementioned images, will be connected over the same Docker network so they can communicate with one another. The localhost will be able to access the web application, which will subsequently query the database on the Postgres contaienr to obtain the requested album information, which will then be returned to the localhost over HTTP. 
+
 ## Building the Project
 
 The project can be built by navigating to the root of the repository on a command line and following the instructions below.
